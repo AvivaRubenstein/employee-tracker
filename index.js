@@ -1,5 +1,15 @@
-
+const mysql = require ('mysql2');
 const inquirer = require('inquirer');
+const cTable = require('console.table');
+
+const db = mysql.createConnection(
+    {host: 'localhost',
+    user:'root',
+    password: 'password',
+    database: 'employee_tracker_db'
+
+}, console.log('Connected to employee tracker database!')
+);
 
 const questions = [{
     type: 'list',  //user selects an option from the list
@@ -88,11 +98,11 @@ inquirer.prompt(questions)
 
     // switch(answers.menu) {
     //     case "View all departments":
-    
+    //          viewDepartments();
     //     case: "View all roles":
-        
+    //           viewRoles();
     //     case: "View all employees":
-
+    //           viewEmployees();
     //     case:  "Add a department":
 
     //     case: "Add a role":
@@ -103,3 +113,24 @@ inquirer.prompt(questions)
     // }
 });
 }
+
+function viewDepartments() {
+
+    db.query('SELECT * FROM department', (err, result) => {
+        console.table(result);
+    });
+}
+
+function viewRoles() {
+    db.query('SELECT * FROM roles', (err, result)=> {
+        console.table(result);
+    });
+}
+
+function viewEmployees() {
+    db.query('SELECT * FROM employee', (err, result) => {
+        console.table(result);
+    });
+}
+
+
