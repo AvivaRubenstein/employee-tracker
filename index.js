@@ -1,20 +1,24 @@
-const mysql = require ('mysql2');
+const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 
-const db = mysql.createConnection(
-    {host: 'localhost',
-    user:'root',
-    password: 'password',
-    database: 'employee_tracker_db'
+//TODO: make options for choosing a dept, or a manager, or role etc be added as choices
 
-}, console.log('Connected to employee tracker database!')
+
+const db = mysql.createConnection(
+    {
+        host: 'localhost',
+        user: 'root',
+        password: 'password',
+        database: 'employee_tracker_db'
+
+    }, console.log('Connected to employee tracker database!')
 );
 
 const questions = [{
     type: 'list',  //user selects an option from the list
     message: 'Please select one of the following options: ',
-    choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role" ],
+    choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role"],
     name: 'menu',
 },
 {
@@ -93,44 +97,67 @@ const questions = [{
 
 
 function init() {
-inquirer.prompt(questions)
-.then((answers) => {
+    inquirer.prompt(questions)
+        .then((answers) => {
 
-    // switch(answers.menu) {
-    //     case "View all departments":
-    //          viewDepartments();
-    //     case: "View all roles":
-    //           viewRoles();
-    //     case: "View all employees":
-    //           viewEmployees();
-    //     case:  "Add a department":
-
-    //     case: "Add a role":
-
-    //     case: "Add an employee":
-
-    //     case: "Update an employee role":
-    // }
-});
+            switch (answers.menu) {
+                case "View all departments":
+                    viewDepartments();
+                    break;
+                case "View all roles":
+                    viewRoles();
+                    break;
+                case "View all employees":
+                    viewEmployees();
+                    break;
+                case "Add a department":
+                    addDepartment(answers.newDeptName);
+                    break;
+                case "Add a role":
+                    addRole(answers.newRoleName, answers.newRoleSalary, answers.newRoleDept);
+                    break;
+                case "Add an employee":
+                    addEmployee(answers.newEmployeeFirstName, answers.newEmployeeLastName, answers.newEmployeeRole, answers.newEmployeeManager);
+                    break;
+                case "Update an employee role":
+                    break;
+            }
+        });
 }
-
+//function will show a table with all department names and ids
 function viewDepartments() {
 
     db.query('SELECT * FROM department', (err, result) => {
         console.table(result);
     });
 }
-
+//job title, role id, the department, and the salary 
 function viewRoles() {
-    db.query('SELECT * FROM roles', (err, result)=> {
+    db.query('SELECT * FROM roles JOIN department ON roles.department_id = department.id', (err, result) => {
         console.table(result);
     });
 }
-
+//employee ids, first names, last names, job titles, departments, salaries, and managers
 function viewEmployees() {
-    db.query('SELECT * FROM employee', (err, result) => {
+    db.query('SELECT * FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.department_id = department.id', (err, result) => {
         console.table(result);
     });
 }
 
+function addDepartment(name) {
+    db.query(`INSERT INTO department (d_name) VALUES ("${name}")`);
+    console.log(`${name} department added.`)
+}
+function addRole(title, salary, department) {
+    db.query(`INSERT INTO roles(title, salary, department_id) VALUES ("${title}", "${salary}", "${department}")`);
+    console.log(`${title} role added.`)
+}
 
+function addEmployee(fName, lName, role, manager) {
+    db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", "${role}", "${manager}")`);
+}
+
+//TODO: add updateEmployeeRole function here!
+
+
+init();
