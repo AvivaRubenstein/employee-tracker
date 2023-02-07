@@ -27,6 +27,12 @@ manager_id INT,
 FOREIGN KEY (role_id)
 REFERENCES roles(id)
 ON DELETE SET NULL
+ON UPDATE CASCADE,
+FOREIGN KEY(manager_id)
+REFERENCES employee(id)
+ON UPDATE CASCADE
+ON DELETE SET NULL
+
 );
 
 -- TODO: figure out how to link employees to their managers
