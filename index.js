@@ -97,9 +97,9 @@ const questions = [{
 
 
 function init() {
+    //make this function recursive 
     inquirer.prompt(questions)
         .then((answers) => {
-
             switch (answers.menu) {
                 case "View all departments":
                     viewDepartments();
@@ -132,8 +132,18 @@ function viewDepartments() {
     });
 }
 //job title, role id, the department, and the salary 
+let rolesArray;
 function viewRoles() {
     db.query('SELECT * FROM roles JOIN department ON roles.department_id = department.id', (err, result) => {
+        //destructuring with mapping
+        //use for updates, and use the array for choices
+        rolesArray = result.map((res)=> {
+            return {
+                value : res.id, 
+                name: res.title,
+                department: res.d_name
+            }
+        });
         console.table(result);
     });
 }
