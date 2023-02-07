@@ -127,14 +127,14 @@ function init() {
 //function will show a table with all department names and ids
 function viewDepartments() {
 
-    db.query('SELECT * FROM department', (err, result) => {
+    db.query('SELECT id, d_name AS Department FROM department', (err, result) => {
         console.table(result);
     });
 }
 //job title, role id, the department, and the salary 
 let rolesArray;
 function viewRoles() {
-    db.query('SELECT * FROM roles JOIN department ON roles.department_id = department.id', (err, result) => {
+    db.query('SELECT roles.title AS Job_Title, department.d_name AS Department, roles.salary AS Salary FROM roles JOIN department ON roles.department_id = department.id', (err, result) => {
         //destructuring with mapping
         //use for updates, and use the array for choices
         rolesArray = result.map((res)=> {
@@ -149,7 +149,18 @@ function viewRoles() {
 }
 //employee ids, first names, last names, job titles, departments, salaries, and managers
 function viewEmployees() {
-    db.query('SELECT * FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.department_id = department.id', (err, result) => {
+    db.query(`SELECT employee.id AS Employee_ID,
+    employee.first_name AS First_Name,
+    employee.last_name AS Last_Name,
+    roles.title AS Job_Title,
+    department.d_name AS Department,
+    roles.salary AS Salary,
+    manager.first_name AS Manager_first, 
+    manager.last_name AS Manager_last
+    FROM employee
+    JOIN roles ON employee.role_id = roles.id
+    JOIN department ON roles.department_id = department.id
+    LEFT JOIN employee AS manager ON employee.manager_id = manager.id`, (err, result) => {
         console.table(result);
     });
 }
@@ -171,3 +182,5 @@ function addEmployee(fName, lName, role, manager) {
 
 
 init();
+
+

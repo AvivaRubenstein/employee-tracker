@@ -35,4 +35,3 @@ ON DELETE SET NULL
 
 );
 
--- TODO: figure out how to link employees to their managers
