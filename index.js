@@ -73,8 +73,9 @@ const questions = [{
     when: (answers) => answers.menu === "Add an employee",
 },
 {
-    type: 'input',
+    type: 'list',
     message: "Who is the employee's manager?",
+    choices: managersArray,
     name: 'newEmployeeManager',
     //using "when" keyword means this question will only be asked based on what we answered in the menu
     when: (answers) => answers.menu === "Add an employee",
@@ -83,7 +84,7 @@ const questions = [{
     //TODO: update the choices to include all existing employees
     type: 'list',
     message: "Please select which Employee you would like to update:",
-    choices: ["PLACEHOLDER"],
+    choices: employeesArray,
     name: 'selectEmployeeToUpdate',
     //using "when" keyword means this question will only be asked based on what we answered in the menu
     when: (answers) => answers.menu === "Update an employee role",
@@ -92,7 +93,7 @@ const questions = [{
     //TODO: update the choices to include all existing role
     type: 'list',
     message: "What is this employee's new role?",
-    choices: ["PLACEHOLDER"],
+    choices: rolesArray,
     name: 'updateRole',
     //using "when" keyword means this question will only be asked based on what we answered in the menu
     when: (answers) => answers.menu === "Update an employee role",
@@ -120,9 +121,11 @@ function init() {
                     break;
                 case "Add a role":
                     addRole(answers.newRoleName, answers.newRoleSalary, answers.newRoleDept);
+                    populateRolesArray();
                     break;
                 case "Add an employee":
                     addEmployee(answers.newEmployeeFirstName, answers.newEmployeeLastName, answers.newEmployeeRole, answers.newEmployeeManager);
+                    populateEmployeesAndManagersArrays();
                     break;
                 case "Update an employee role":
                     break;
@@ -254,8 +257,8 @@ function populateEmployeesAndManagersArrays() {
 
 //TODO: add updateEmployeeRole function here!
 
-populateRolesArray();
-populateEmployeesAndManagersArrays();
+//populateRolesArray();
+//populateEmployeesAndManagersArrays();
 init();
 
 
