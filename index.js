@@ -2,6 +2,10 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 
+var employeesArray;
+var managersArray;
+var rolesArray;
+
 //TODO: make options for choosing a dept, or a manager, or role etc be added as choices
 
 
@@ -61,8 +65,9 @@ const questions = [{
     when: (answers) => answers.menu === "Add an employee",
 },
 {
-    type: 'input',
+    type: 'list',
     message: "What is the employee's role?",
+    choices: rolesArray,
     name: 'newEmployeeRole',
     //using "when" keyword means this question will only be asked based on what we answered in the menu
     when: (answers) => answers.menu === "Add an employee",
@@ -132,19 +137,22 @@ function viewDepartments() {
     });
 }
 //job title, role id, the department, and the salary 
-let rolesArray;
+
 function viewRoles() {
     db.query('SELECT roles.title AS Job_Title, department.d_name AS Department, roles.salary AS Salary FROM roles JOIN department ON roles.department_id = department.id', (err, result) => {
         //destructuring with mapping
         //use for updates, and use the array for choices
+        rolesArray = [];
         rolesArray = result.map((res)=> {
-            return {
-                value : res.id, 
-                name: res.title,
-                department: res.d_name
+            return {role: res.Job_Title,
+                department: res.Department,
+                 salary : res.Salary
             }
+            
         });
-        console.table(result);
+         console.table(result);
+        // console.log(result);
+        //console.log(rolesArray);
     });
 }
 //employee ids, first names, last names, job titles, departments, salaries, and managers
@@ -161,26 +169,94 @@ function viewEmployees() {
     JOIN roles ON employee.role_id = roles.id
     JOIN department ON roles.department_id = department.id
     LEFT JOIN employee AS manager ON employee.manager_id = manager.id`, (err, result) => {
+        employeesArray = result.map((res)=> {
+            return {
+                id: res.Employee_ID,
+                name: res.First_Name + " " + res.Last_Name,
+                role: res.Job_Title,
+                department: res.Department,
+                salary: res.Salary,
+                manager: res.Manager_first + " " + res.Manager_last,
+               
+            }
+        });
         console.table(result);
+        //console.log(employeesArray);
     });
 }
 
 function addDepartment(name) {
     db.query(`INSERT INTO department (d_name) VALUES ("${name}")`);
-    console.log(`${name} department added.`)
+    console.log(`${name} department added.`);
 }
 function addRole(title, salary, department) {
     db.query(`INSERT INTO roles(title, salary, department_id) VALUES ("${title}", "${salary}", "${department}")`);
-    console.log(`${title} role added.`)
+    console.log(`${title} role added.`);
 }
 
 function addEmployee(fName, lName, role, manager) {
     db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", "${role}", "${manager}")`);
 }
 
+
+function populateRolesArray(){
+    db.query('SELECT roles.title AS Job_Title, department.d_name AS Department, roles.salary AS Salary FROM roles JOIN department ON roles.department_id = department.id', (err, result) => {
+        //destructuring with mapping
+        //use for updates, and use the array for choices
+        rolesArray = [];
+        //flatMap "flattens" the mapped array by 1 level, meaning in this case it will create 1 array with all of the roles 
+        //within in, as opposed to creating a larger array with smaller arrays within which each contain a role
+        rolesArray = result.flatMap((res)=> {
+            return res.Job_Title;
+        });
+        console.log(rolesArray);
+     
+});}
+
+
+function populateEmployeesAndManagersArrays() {
+    db.query(`SELECT employee.id AS Employee_ID,
+    employee.first_name AS First_Name,
+    employee.last_name AS Last_Name,
+    roles.title AS Job_Title,
+    department.d_name AS Department,
+    roles.salary AS Salary,
+    manager.first_name AS Manager_first, 
+    manager.last_name AS Manager_last
+    FROM employee
+    JOIN roles ON employee.role_id = roles.id
+    JOIN department ON roles.department_id = department.id
+    LEFT JOIN employee AS manager ON employee.manager_id = manager.id`, (err, result) => {
+        // employeesArray = [];
+        // managersArray = [];
+        employeesArray = result.flatMap((res)=> {
+            return res.First_Name + " " + res.Last_Name;
+            
+        });
+        managersArray = result.flatMap((res)=> {
+            //some of the items in the array will be "null null" because there was no manager first/last names
+            //we are setting those items to be empty quotes, and setting all of the items that ARE NOT null
+            //so that the first and last names are joined together in the array
+            if(res.Manager_first || res.Manager_last !== null) {
+            return res.Manager_first + " " + res.Manager_last;}
+            else {return "";}
+            
+        
+        });
+        //here we are filtering out any places where manager was set to empty quotes/ was originally null
+        managersArray = managersArray.filter(manager => manager !== "");
+        console.log(employeesArray);
+//TODO:  figure out how to omit null/undefined managers from the array
+        console.log(managersArray);
+    });
+}
+
+
 //TODO: add updateEmployeeRole function here!
 
-
+populateRolesArray();
+populateEmployeesAndManagersArrays();
 init();
+
 
 
