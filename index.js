@@ -212,7 +212,7 @@ function populateRolesArray(){
         rolesArray = result.flatMap((res)=> {
             return res.Job_Title;
         });
-        console.log(rolesArray);
+        // console.log(rolesArray);
      
 });}
 
@@ -248,17 +248,17 @@ function populateEmployeesAndManagersArrays() {
         });
         //here we are filtering out any places where manager was set to empty quotes/ was originally null
         managersArray = managersArray.filter(manager => manager !== "");
-        console.log(employeesArray);
+        // console.log(employeesArray);
 //TODO:  figure out how to omit null/undefined managers from the array
-        console.log(managersArray);
+        // console.log(managersArray);
     });
 }
 
 
 //TODO: add updateEmployeeRole function here!
 
-//populateRolesArray();
-//populateEmployeesAndManagersArrays();
+populateRolesArray();
+populateEmployeesAndManagersArrays();
 init();
 
 
