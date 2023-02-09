@@ -23,4 +23,8 @@ VALUES
 ("John", "Doe", 8, 4),
 ("Janet", "Swanson", 2, 2),
 ("Sally", "Johnson", 4, 1),
-("Nancy", "Wilson", 6, 3);
+("Nancy", "Wilson", 6, 3),
+("Kara", "Levits", 6, 3),
+("Hugh", "Mann", 8, 4),
+("Beatrice", "Rogers", 4, 1),
+("Lee", "Potts", 2, 2);

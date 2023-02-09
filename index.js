@@ -22,7 +22,7 @@ const db = mysql.createConnection(
 const questions = [{
     type: 'list',  //user selects an option from the list
     message: 'Please select one of the following options: ',
-    choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role"],
+    choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "View employees by managers"],
     name: 'menu',
 },
 {
@@ -128,6 +128,10 @@ function init() {
                     populateEmployeesAndManagersArrays();
                     break;
                 case "Update an employee role":
+                    updateEmployeeRole(answers.selectEmployeeToUpdate, answers.updateRole);
+                    break;
+                case "View employees by managers":
+                    viewEmployeesByManagers();
                     break;
             }
         });
@@ -187,6 +191,18 @@ function viewEmployees() {
         //console.log(employeesArray);
     });
 }
+function viewEmployeesByManagers() {
+    db.query(`SELECT employee.first_name AS First_Name, 
+    employee.last_name AS Last_Name,
+    manager.first_name AS Manager_First,
+    manager.last_name AS Manager_last
+    FROM employee
+    JOIN employee AS manager ON employee.manager_id = manager.id
+    ORDER BY employee.manager_id;`, (err, result) => {
+    console.table(result); }
+     );
+   
+}
 
 function addDepartment(name) {
     db.query(`INSERT INTO department (d_name) VALUES ("${name}")`);
@@ -199,6 +215,10 @@ function addRole(title, salary, department) {
 
 function addEmployee(fName, lName, role, manager) {
     db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${fName}", "${lName}", "${role}", "${manager}")`);
+}
+//TODO: add updateEmployeeRole function here!
+function updateEmployeeRole(employee, newRole) {
+    db.query(` `)
 }
 
 
@@ -249,13 +269,13 @@ function populateEmployeesAndManagersArrays() {
         //here we are filtering out any places where manager was set to empty quotes/ was originally null
         managersArray = managersArray.filter(manager => manager !== "");
         // console.log(employeesArray);
-//TODO:  figure out how to omit null/undefined managers from the array
         // console.log(managersArray);
     });
 }
 
 
-//TODO: add updateEmployeeRole function here!
+
+
 
 populateRolesArray();
 populateEmployeesAndManagersArrays();

@@ -19,3 +19,17 @@ JOIN roles ON employee.role_id = roles.id
 JOIN department ON roles.department_id = department.id
 -- we are making manager an alias for the employee table where the employee's manager id matches an existing manager/employee
 LEFT JOIN employee AS manager ON employee.manager_id = manager.id;
+
+-- view employees by manager
+SELECT employee.first_name AS First_Name, 
+employee.last_name AS Last_Name,
+manager.first_name AS Manager_First,
+manager.last_name AS Manager_last
+FROM employee
+JOIN employee AS manager ON employee.manager_id = manager.id
+ORDER BY employee.manager_id;
+
+--update employee role
+    UPDATE employee
+    SET employee.role_id = '', City = ''
+    WHERE CustomerID = 1;
