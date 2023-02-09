@@ -29,7 +29,4 @@ FROM employee
 JOIN employee AS manager ON employee.manager_id = manager.id
 ORDER BY employee.manager_id;
 
---update employee role
-    UPDATE employee
-    SET employee.role_id = '', City = ''
-    WHERE CustomerID = 1;
+SELECT roles.title FROM roles;
