@@ -29,7 +29,7 @@ const db = mysql.createConnection(
 const menuQ = [{
     type: 'list',  //user selects an option from the list
     message: 'Please select one of the following options: ',
-    choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "View employees by managers"],
+    choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "View employees by managers", "Exit"],
     name: 'menu',
 }];
 var addDeptQ = [
@@ -131,6 +131,9 @@ function init() {
                 case "Update an employee role":
                     updateEmployeeRole();
                     break;
+                case "Exit":
+                    process.exit();
+                    break;
                 
             }
         });
@@ -140,6 +143,7 @@ function viewDepartments() {
 
     db.query('SELECT id, d_name AS Department FROM department', (err, result) => {
         console.table(result);
+        init();
     });
 }
 //job title, role id, the department, and the salary 
@@ -157,6 +161,7 @@ function viewRoles() {
             
         });
          console.table(result);
+         init();
         // console.log(result);
         //console.log(rolesArray);
     });
@@ -187,6 +192,7 @@ function viewEmployees() {
             }
         });
         console.table(result);
+        init();
         //console.log(employeesArray);
     });
 }
@@ -198,7 +204,8 @@ function viewEmployeesByManagers() {
     FROM employee
     JOIN employee AS manager ON employee.manager_id = manager.id
     ORDER BY employee.manager_id;`, (err, result) => {
-    console.table(result); }
+    console.table(result); 
+    init();}
      );
    
 }
@@ -209,6 +216,7 @@ function addDepartment() {
             db.query(`INSERT INTO department (d_name) VALUES ("${answers.newDeptName}")`);
             console.log(`${answers.newDeptName} department added.`);
             populateDepartmentsArray();
+            init();
         } );
    
 }
@@ -233,6 +241,7 @@ function addRole() {
         
         db.query(`INSERT INTO roles(title, salary, department_id) VALUES ("${answers.newRoleName}", "${answers.newRoleSalary}", "${deptId}")`, (err, res) => {
             console.log(`${answers.newRoleName} role added.`);
+            init();
         });
      
     });
@@ -300,6 +309,7 @@ function addEmployee() {
 
                 db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answers.newEmployeeFirstName}", "${answers.newEmployeeLastName}" ,${newRoleId}, ${updateManager})`, (req, response) => {
                     console.log("Employee added"); });
+                    init();
                 });
                 
                 
@@ -338,6 +348,7 @@ function updateEmployeeRole(employee, newRole) {
     
                 db.query(`UPDATE employee SET role_id = ${newRoleId} WHERE first_name = "${updateEmplName[0]}" AND last_name = "${updateEmplName[1]}"`, (err, result) => {
                     console.log("Update complete!");
+                    init();
                 }
                 );
             });
@@ -415,8 +426,8 @@ function populateEmployeesAndManagersArrays() {
 
 
 
-populateRolesArray();
-populateEmployeesAndManagersArrays();
+// populateRolesArray();
+// populateEmployeesAndManagersArrays();
 // populateDepartmentsArray();
 init();
 
