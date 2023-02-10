@@ -13,7 +13,6 @@ var deptId;
 var updateEmplName;
 var newRoleId;
 
-//TODO: make options for choosing a dept, or a manager, or role etc be added as choices
 
 
 const db = mysql.createConnection(
@@ -103,7 +102,7 @@ var updateEmployeeQs = [
 
 
 function init() {
-    //make this function recursive 
+    //this function will prompt the user with the menu question, and then run more functions based on the selection
     inquirer.prompt(menuQ)
         .then((answers) => {
             switch (answers.menu) {
@@ -132,6 +131,7 @@ function init() {
                     updateEmployeeRole();
                     break;
                 case "Exit":
+                    //to close the application
                     process.exit();
                     break;
                 
@@ -151,7 +151,7 @@ function viewDepartments() {
 function viewRoles() {
     db.query('SELECT roles.title AS Job_Title, department.d_name AS Department, roles.salary AS Salary FROM roles JOIN department ON roles.department_id = department.id', (err, result) => {
         //destructuring with mapping
-        //use for updates, and use the array for choices
+        //we need an array of roles to be the choices in the prompt questions
         rolesArray = [];
         rolesArray = result.map((res)=> {
             return {role: res.Job_Title,
@@ -423,12 +423,6 @@ function populateEmployeesAndManagersArrays() {
 }
 
 
-
-
-
-// populateRolesArray();
-// populateEmployeesAndManagersArrays();
-// populateDepartmentsArray();
 init();
 
 
