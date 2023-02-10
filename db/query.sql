@@ -30,3 +30,7 @@ JOIN employee AS manager ON employee.manager_id = manager.id
 ORDER BY employee.manager_id;
 
 SELECT roles.title FROM roles;
+
+
+
+INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("Anita", "Darren", 1, 3);

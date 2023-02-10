@@ -6,6 +6,12 @@ var employeesArray;
 var managersArray;
 var rolesArray;
 var departmentsArray;
+var newRoleId;
+var managerForNew;
+var updateManager;
+var deptId;
+var updateEmplName;
+var newRoleId;
 
 //TODO: make options for choosing a dept, or a manager, or role etc be added as choices
 
@@ -120,11 +126,10 @@ function init() {
                     addRole();
                     break;
                 case "Add an employee":
-                    addEmployee(answers.newEmployeeFirstName, answers.newEmployeeLastName, answers.newEmployeeRole, answers.newEmployeeManager);
-                    populateEmployeesAndManagersArrays();
+                    addEmployee();
                     break;
                 case "Update an employee role":
-                    updateEmployeeRole(answers.selectEmployeeToUpdate, answers.updateRole);
+                    updateEmployeeRole();
                     break;
                 
             }
@@ -222,17 +227,22 @@ function addRole() {
         inquirer.prompt(addRoleQs)
     //and then we can do a query to insert the new role into the roles table, with all of the associated information
         .then((answers) => {
-        db.query(`INSERT INTO roles(title, salary, department_id) VALUES ("${answers.newRoleName}", "${answers.newRoleSalary}", "${answers.newRoleDept}")`);
-        console.log(`${answers.newRoleName} role added.`);
+         db.query(`SELECT id from department WHERE d_name = "${answers.newRoleDept}"`, (err, res) => {
+            deptId = res[0].id;
+            // console.log(res[0].id);
+        
+        db.query(`INSERT INTO roles(title, salary, department_id) VALUES ("${answers.newRoleName}", "${answers.newRoleSalary}", "${deptId}")`, (err, res) => {
+            console.log(`${answers.newRoleName} role added.`);
+        });
      
-})
+    });
     // inquirer.prompt(addRoleQs)
     // .then((answers) => {
     // db.query(`INSERT INTO roles(title, salary, department_id) VALUES ("${answers.newRoleName}", "${answers.newRoleSalary}", "${answers.newRoleDept}")`);
     // console.log(`${answers.newRoleName} role added.`);
     
 });
-}
+});}
 
 function addEmployee() {
     //need to ask about the role and the manager!
@@ -278,9 +288,27 @@ function addEmployee() {
     addEmployeeQs[3].choices = managersArray;
     
     inquirer.prompt(addEmployeeQs)
-    .then((answers)=> {db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answers.newEmployeeFirstName}", "${answers.newEmployeeLastName}", "${answers.newEmployeeRole}", "${answers.newEmployeeManager}")`);
-    console.log("Employee added"); }
-    );
+    .then((answers)=> {
+        managerForNew = answers.newEmployeeManager.split(" ");
+        db.query(`SELECT roles.id FROM roles WHERE roles.title = "${answers.newEmployeeRole}"`, (err, result) => {
+            newRoleId = result[0].id;
+            // console.log(result[0].id);
+        
+            db.query(`SELECT employee.id FROM employee WHERE employee.first_name = "${managerForNew[0]}" AND employee.last_name = "${managerForNew[1]}"`, (err, res) =>{
+                updateManager = res[0].id;
+                // console.log(res[0].id);
+
+                db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answers.newEmployeeFirstName}", "${answers.newEmployeeLastName}" ,${newRoleId}, ${updateManager})`, (req, response) => {
+                    console.log("Employee added"); });
+                });
+                
+                
+            }
+            );
+        });
+        
+        
+    
     });
 
 }
@@ -288,8 +316,37 @@ function addEmployee() {
 
 //TODO: add updateEmployeeRole function here!
 function updateEmployeeRole(employee, newRole) {
-    db.query(` `)
-}
+    db.query(`SELECT employee.first_name AS First_Name, employee.last_name AS Last_Name, employee.id AS Employee_ID FROM employee`, (err, result) => {
+        employeesArray = result.map((res)=> {
+            return {
+                id: res.Employee_ID,
+                name: res.First_Name + " " + res.Last_Name,    
+            }
+    });
+    db.query(`SELECT roles.id, roles.title AS Title FROM roles`, (err, result) =>{
+        rolesArray = result.map((response)=> {
+            return {name: response.Title,
+            id: response.id}
+        } );
+        updateEmployeeQs[0].choices = employeesArray;
+        updateEmployeeQs[1].choices = rolesArray;
+        inquirer.prompt(updateEmployeeQs)
+        .then((answers)=>{
+            updateEmplName = answers.selectEmployeeToUpdate.split(" ");
+            db.query(`SELECT id FROM roles WHERE roles.title = "${answers.updateRole}"`, (err, response) =>
+            {   newRoleId = response[0].id;
+    
+                db.query(`UPDATE employee SET role_id = ${newRoleId} WHERE first_name = "${updateEmplName[0]}" AND last_name = "${updateEmplName[1]}"`, (err, result) => {
+                    console.log("Update complete!");
+                }
+                );
+            });
+            
+        }
+         );
+    }
+);
+} );}
 
 
 function populateRolesArray(){
