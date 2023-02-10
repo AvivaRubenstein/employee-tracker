@@ -239,7 +239,7 @@ function addRole() {
             deptId = res[0].id;
             // console.log(res[0].id);
         
-        db.query(`INSERT INTO roles(title, salary, department_id) VALUES ("${answers.newRoleName}", "${answers.newRoleSalary}", "${deptId}")`, (err, res) => {
+        db.query(`INSERT INTO roles(title, salary, department_id) VALUES ("${answers.newRoleName}", "${answers.newRoleSalary}", ${deptId})`, (err, res) => {
             console.log(`${answers.newRoleName} role added.`);
             init();
         });
