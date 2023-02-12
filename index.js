@@ -217,7 +217,6 @@ function addDepartment() {
         .then((answers) => {
             db.query(`INSERT INTO department (d_name) VALUES ("${answers.newDeptName}")`);
             console.log(`${answers.newDeptName} department added.`);
-            populateDepartmentsArray();
             init();
         });
 
@@ -367,18 +366,6 @@ function updateEmployeeRole(employee, newRole) {
 }
 
 
-function populateDepartmentsArray() {
-
-    db.query('SELECT id, d_name AS Department FROM department', (err, result) => {
-        departmentsArray = result.flatMap((res) => {
-            return {
-                id: res.id,
-                name: res.Department
-            };
-        });
-        //console.log(departmentsArray);
-    });
-}
 
 
 init();
